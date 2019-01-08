@@ -7,7 +7,7 @@ Adding <ul> and <li> tags can be tedius, with the HTML Code Formartter, you just
   
 ## See it here:
 https://bellazook.github.io/HTML-code-Formartter/
-[HTML Code Formatter](https://bellazook.github.io/HTML-code-Formartter/ "HTML Code Formatter")
+
 
 ## Code Formatter
 ![html code formater](https://user-images.githubusercontent.com/35147263/50862765-5b817400-1351-11e9-972a-9ab8041d10b3.PNG)
