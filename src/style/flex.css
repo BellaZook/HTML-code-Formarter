@@ -1,0 +1,60 @@
+.flexContainer {
+    display: flex;
+}
+
+.flexItem {
+    flex: 1;
+}
+
+.flex-vertical {
+    flex-direction: column;
+}
+
+/*  | 
+    | 
+*/
+
+.flex-horizontal {
+    flex-direction: row;
+}
+
+/* | | | */
+
+.flex-center {
+    justify-content: center;
+}
+
+/* _  |||  _  Center, Items are grouped in the center of the container*/
+
+.flex-spaceAround {
+    justify-content: space-around;
+}
+
+/* _ | | | _   Does not touch the sides of the container*/
+
+.flex-spaceBetween {
+    justify-content: space-between;
+}
+
+.flex-middle {
+    align-items: center;
+    /* justify-content: center; */
+}
+
+.flex-warp {
+    flex-wrap: wrap;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+.flex-stretch {
+    align-self: stretch
+}
+
+.flex-end {
+    justify-content: flex-end;
+}
+
+/* _   ||_ */
