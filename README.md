@@ -5,8 +5,8 @@ A picture is worth a thousand words, show your readers the relationships in your
 
 Adding <ul> and <li> tags can be tedius, with the HTML Code Formartter, you just need to paste you code and it will add the tags for you.
   
-## See it here:
-https://bellazook.github.io/HTML-code-Formartter/
+## Try it at: https://bellazook.github.io/HTML-code-Formartter/
+
 
 
 ## Code Formatter
