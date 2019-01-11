@@ -2,17 +2,19 @@ import React from 'react';
 import './radio.css';
 import RadioButton from './RadioButton';
 
-const RadioButtons = ({ selectedRadio, handleRadioChange }) => {
-    // console.log(selectedRadio, handleRadioChange)
+const RadioButtons = ({ radioFormat, handleRadioChange }) => {
+    // console.log('radio format ', radioFormat)
     return (
-        <div className="margin-sm">
+        <div className="flexContainer margin-sm">
             <RadioButton
-                title="Color" selectedRadio={selectedRadio}
+                title="Color" selectedRadio={radioFormat}
                 onChange={handleRadioChange}
+                radioName="radioFormat"
             />
             <RadioButton
-                title="Border" selectedRadio={selectedRadio}
+                title="Border" selectedRadio={radioFormat}
                 onChange={handleRadioChange}
+                radioName="radioFormat"
             />
         </div>
     );
@@ -21,7 +23,3 @@ const RadioButtons = ({ selectedRadio, handleRadioChange }) => {
 export default RadioButtons;
 
 
-// <label className="radio">Color
-// <input type="radio" name="radio" checked={selectedRadio === "color"} />
-//         <span className="checkmark"></span>
-//     </label>

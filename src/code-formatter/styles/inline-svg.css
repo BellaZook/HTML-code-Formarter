@@ -1,6 +1,15 @@
-.texarea-height {
+.texArea-height {
     min-height: 50vh;
     white-space: pre;
     overflow-wrap: normal;
     overflow-x: scroll;
+
+    /* use to align text area */
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.formatter {
+    min-width: 40vw;
 }

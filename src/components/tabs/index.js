@@ -1,59 +1,65 @@
 import React from 'react';
 import './tabs.css';
 import CssClass from './CssClass';
-import Menu from './Menu';
+import Format from './Format';
 import Instructions from './Instructions';
+import Start from './Start';
+import TabButton from './TabButton';
 
-class Tabs extends React.Component {
-    state = {
-        activeTab: 'Menu'
-    }
+const Tabs = ({
+    handleSetActiveTab, activeTab, handleReset,
+    handleRadioChange, handleAddColor, handleSubmit,
+    radioFormat, radioJSX, radioStyle
 
-    handleSetActiveTab = (event) => {
-        console.log("radio was called")
-        this.setState({
-            activeTab: event.target.value
-        });
-    }
+}) => {
 
-    openCity = (evt, tabName) => {
-        // var i, tabcontent, tablinks;
-        // tabcontent = document.getElementsByClassName("tabcontent");
-        // for (i = 0; i < tabcontent.length; i++) {
-        //     tabcontent[i].style.display = "none";
-        // }
-        // tablinks = document.getElementsByClassName("tablinks");
-        // for (i = 0; i < tablinks.length; i++) {
-        //     tablinks[i].className = tablinks[i].className.replace(" active", "");
-        // }
-        // document.getElementById(tabName).style.display = "block";
-        // evt.currentTarget.className += " active";
-    }
 
-    componentDidMount = () => {
-        // Get the element with id="defaultOpen" and click on it
-        // document.getElementById("defaultOpen").click();
-    }
-
-    render() {
-        return (
-            <React.Fragment>
-                <div className="tab">
-                    <button className="tablinks" value="Menu" onClick={(event) => this.handleSetActiveTab(event, 'Menu')} id="defaultOpen">Menu</button>
-                    <button className="tablinks" value="CSS" onClick={(event) => this.handleSetActiveTab(event, 'cssClass')}>CSS</button>
-                    <button className="tablinks" value="Instructions" onClick={(event) => this.handleSetActiveTab(event, 'instructions')}>Instructions</button>
-                </div>
-                <Menu
-                    selectedRadio={this.props.selectedRadio}
-                    handleRadioChange={this.props.handleRadioChange}
-                    handleAddColor={this.props.handleAddColor}
-                    activeTab={this.state.activeTab}
+    return (
+        <React.Fragment>
+            <div className="tab">
+                <TabButton
+                    handleSetActiveTab={handleSetActiveTab}
+                    activeTab={activeTab}
+                    tabName='Start'
                 />
-                <CssClass activeTab={this.state.activeTab} />
-                <Instructions activeTab={this.state.activeTab} />
-            </React.Fragment>
-        );
-    }
+                <TabButton
+                    handleSetActiveTab={handleSetActiveTab}
+                    activeTab={activeTab}
+                    tabName='Format'
+                />
+                <TabButton
+                    handleSetActiveTab={handleSetActiveTab}
+                    activeTab={activeTab}
+                    tabName='CSS'
+                />
+                <TabButton
+                    handleSetActiveTab={handleSetActiveTab}
+                    activeTab={activeTab}
+                    tabName='Instructions'
+                />
+            </div>
+            <Start
+                activeTab={activeTab}
+                handleRadioChange={handleRadioChange}
+                handleAddColor={handleAddColor}
+                handleSubmit={handleSubmit}
+                handleReset={handleReset}
+
+                radioJSX={radioJSX}
+                radioStyle={radioStyle}
+            />
+            <Format
+                radioFormat={radioFormat}
+
+                handleRadioChange={handleRadioChange}
+                handleAddColor={handleAddColor}
+                activeTab={activeTab}
+
+            />
+            <CssClass activeTab={activeTab} />
+            <Instructions activeTab={activeTab} />
+        </React.Fragment>
+    );
 }
 
 

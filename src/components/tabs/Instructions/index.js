@@ -3,7 +3,7 @@ import React from 'react';
 
 const Instructions = ({ activeTab }) => {
     return (
-        <div id="instructions" className="tabcontent" style={{ display: activeTab === 'Instructions' ? "block" : "none" }}>
+        <div id="instructions" className="tabContent" style={{ display: activeTab === 'Instructions' ? "block" : "none" }}>
 
             <p style={{ margin: 0 }}>Coming Soon</p>
             <p>Instructions</p>

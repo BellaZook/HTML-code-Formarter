@@ -14,27 +14,54 @@ export default class CodeFormatter extends Component {
         this.findAndReplace = this.findAndReplace.bind(this);
         this.handleAddColor = this.handleAddColor.bind(this);
         this.handleRadioChange = this.handleRadioChange.bind(this);
+        // this.handleReset = this.handleReset.bind(this);
 
         this.displayCodeString = "";
 
         this.state = {
             value: '',
             elementList: [],
-            selectedRadio: 'Color',
-            formatedString: ''
+
+            radioFormat: 'Color',
+            radioJSX: '',
+            radioStyle: 'Style',
+
+            formatedString: '',
+            isReadOnly: false,
+            activeTab: 'Start'
+
         };
+    }
+
+    handleSetActiveTab = (event) => {
+        this.setState({
+            activeTab: event.target.value
+        });
     }
 
     handleChange(event) {
         this.setState({ value: event.target.value });
     }
 
-    handleSubmit(event) {
-        event.preventDefault();
+    handleSubmit() {
         this.findAndReplace();
+    }
+    handleReset = () => {
+        this.displayCodeString = ""
+        this.setState(() => {
+            return {
+                isReadOnly: true,
+                value: '',
+                activeTab: 'Start'
+
+            }
+        })
+
     }
 
     findAndReplace = () => {
+        const lessThan = "&#60;";
+        const slash = "&#47;";
         let formatedStrings = [];
         let selectedString = "";
         let rowStartWith = "";
@@ -44,37 +71,68 @@ export default class CodeFormatter extends Component {
         const numberOfLinesToFormat = arrayOfStrings.length;
 
         if (this.state.value) {
+            this.setState(() => {
+                return {
+                    isReadOnly: true,
+                    activeTab: 'Format'
+                }
+            })
 
             for (let index = 0; index < numberOfLinesToFormat; index++) {
 
                 selectedString = arrayOfStrings[index].trim();
-                const replaceSlashes = selectedString.replace(/\//g, "&#47;");
-                selectedString = replaceSlashes.replace("<", "&#60;");
+                const replaceSlashes = selectedString.replace(/\//g, slash);
+                selectedString = replaceSlashes.replace(/</g, lessThan);
 
                 switch (true) {
-                    case selectedString.startsWith("//"):
+                    case selectedString.startsWith(slash + slash):
+                        // 
                         rowStartWith = "\n<li>";
                         rowEndWith = "</li>";
                         break;
-
                     case selectedString.startsWith("}") || selectedString.startsWith(")"):
+                        // } , )
                         rowStartWith = "</ul>\n";
                         rowEndWith = "</li>";
                         break;
-                    case selectedString.startsWith("&#60;") && !selectedString.startsWith("&#60;&#47;") && !selectedString.endsWith("/>") && selectedString.endsWith(">"):
-                        // &#60; === <
+                    case selectedString.startsWith(lessThan + slash) && selectedString.endsWith(">") && (selectedString.split(lessThan).length - 1) < 2:
+                        // </ tag >
+                        console.log("less than 2")
+                        rowStartWith = "</ul>\n";
+                        rowEndWith = "</li>";
+                        break;
+                    case selectedString.startsWith(lessThan) && selectedString.endsWith(">") && (selectedString.split(lessThan).length - 1) > 1:
+                        // <tag> text </tag>
+                        rowStartWith = "\n<li>";
+                        rowEndWith = "</li>";
+                        break;
+                    case selectedString.startsWith(lessThan) && selectedString.endsWith(slash + ">") && (selectedString.split(lessThan).length - 1) < 2:
+                        // <tag/>
+                        rowStartWith = "\n<li>";
+                        rowEndWith = "</li>";
+                        break;
+                    case selectedString.startsWith(lessThan) && !selectedString.endsWith("/>") && selectedString.endsWith(">"):
+                        // <tag>
                         rowStartWith = "\n<li>";
                         rowEndWith = "\n<ul>";
+                        break;
+                    case selectedString.startsWith(lessThan) && !selectedString.endsWith("/>") && !selectedString.endsWith(">") && selectedString.split(" ").length === 1:
+                        // <tag
+                        rowStartWith = "\n<li>";
+                        rowEndWith = "\n<ul>";
+                        break;
+                    case selectedString.startsWith(slash + ">") && selectedString.endsWith(slash + ">"):
+                        // />
+                        rowStartWith = "</ul>\n";
+                        rowEndWith = "</li>";
                         break;
                     case selectedString.endsWith("{") || selectedString.endsWith("("):
+                        // text {  or  text (
                         rowStartWith = "\n<li>";
                         rowEndWith = "\n<ul>";
                         break;
-                    case selectedString.startsWith("&#60;&#47;") && selectedString.endsWith(">"):
-                        rowStartWith = "</ul>\n";
-                        rowEndWith = "</li>";
-                        break;
                     default:
+                        // li
                         rowStartWith = "\n<li>";
                         rowEndWith = "</li>";
                         break;
@@ -113,7 +171,7 @@ export default class CodeFormatter extends Component {
         const selectedTextEndIndex = txtArea.selectionEnd;
         const selectedText = txtArea.value.substring(selectedTextStartIndex, selectedTextEndIndex);
 
-        switch (this.state.selectedRadio) {
+        switch (this.state.radioFormat) {
             case 'Color':
                 selectionReplacement = `<span style="color:${color}; font-weight: bold"> ${selectedText}</span>`;
                 break;
@@ -149,34 +207,45 @@ export default class CodeFormatter extends Component {
 
     }
     handleRadioChange = (changeEvent) => {
-        this.setState({
-            selectedRadio: changeEvent.target.value
-        });
+        // console.log(changeEvent.target.name, ' ', changeEvent.target.value)
+        let targetValue = changeEvent.target.value;
+        if (targetValue === 'JSX' && this.state.radioJSX === 'JSX') {
+            targetValue = '';
+        }
+        console.log(targetValue);
+        const stateObject = { [changeEvent.target.name]: targetValue }
+        // console.log(stateObject)
+        this.setState(stateObject);
     }
     render() {
         return (
             <div className="flexContainer flex-warp">
-                <div className="margin-md">
+                <div className="formatter margin-md">
                     <h2 className="">Format Javascript Code Using List</h2>
                     <Tabs
                         handleAddColor={this.handleAddColor}
                         selectedRadio={this.state.selectedRadio}
                         handleRadioChange={this.handleRadioChange}
+                        handleSubmit={this.handleSubmit}
+                        handleReset={this.handleReset}
+                        handleSetActiveTab={this.handleSetActiveTab}
+                        activeTab={this.state.activeTab}
+
+                        radioFormat={this.state.radioFormat}
+                        radioJSX={this.state.radioJSX}
+                        radioStyle={this.state.radioStyle}
+
                     />
-                    <form className="formatter margin-top-sm" onSubmit={this.handleSubmit}>
-                        <div >
-                            <textarea
-                                name="text" id="codeTextarea"
-                                className="texarea-height" placeholder="Paste your code inside"
-                                style={{ width: "100%" }} value={this.state.value}
-                                onChange={this.handleChange}
-                            />
-                        </div>
-                        <div >
-                            <button type="submit" value="Submit" >Convert</button>
-                        </div>
+                    <div className="formatter margin-top-sm" >
+                        <textarea
+                            readOnly={this.state.isReadOnly}
+                            name="text" id="codeTextarea"
+                            className="texArea-height" placeholder="Paste your code inside"
+                            style={{ width: "100%" }} value={this.state.value}
+                            onChange={this.handleChange}
+                        />
                         <br />
-                    </form>
+                    </div>
                 </div>
                 <DisplayFormattedCode displayCodeString={this.displayCodeString} />
             </div>
@@ -185,24 +254,15 @@ export default class CodeFormatter extends Component {
 }
 
 
-// changeSelectedText = () => {
-//     console.log("test");
 
-//     // obtain the object reference for the textarea>
-//     var txtArea = document.getElementById("codeTextarea");
-//     // obtain the index of the first selected character
-//     var start = txtArea.selectionStart;
-//     // obtain the index of the last selected character
-//     var finish = txtArea.selectionEnd;
-//     //obtain all Text
-//     var allText = txtArea.value;
+// TO DO:
+// ADD SWITCH. (BREAK AND RETURN)
+// case selectedString.startsWith("case") && selectedString.endsWith(":"):
+// // text {  or  text (
+// rowStartWith = "\n<li>";
+// rowEndWith = "\n<ul>";
+// break;
 
-//     // obtain the selected text
-//     var sel = allText.substring(start, finish);
-//     //append te text;
-//     var newText = allText.substring(0, start) + "<center>" + sel + "</center>" + allText.substring(finish, allText.length);
-
-//     console.log(newText);
-
-//     txtArea.value = newText;
-// }
+// for return create a hasCase variable = false,
+// change to true if has case,
+// change to false after break or return.
