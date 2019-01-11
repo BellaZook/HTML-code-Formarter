@@ -2,6 +2,31 @@
     background-color: blue;
 }
 
-.color-white {
+.c-white {
     color: white;
+}
+
+.c-blue {
+    color: blue
+}
+
+.c-red {
+    color: red;
+}
+
+.c-green {
+    color: green;
+}
+
+.c-black {
+    color: black;
+}
+
+.f-bold {
+    font-weight: bold;
+}
+
+.bd-color {
+    border: solid;
+    padding: 0 1px;
 }

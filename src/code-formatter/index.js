@@ -14,13 +14,10 @@ export default class CodeFormatter extends Component {
         this.findAndReplace = this.findAndReplace.bind(this);
         this.handleAddColor = this.handleAddColor.bind(this);
         this.handleRadioChange = this.handleRadioChange.bind(this);
-        // this.handleReset = this.handleReset.bind(this);
-
         this.displayCodeString = "";
 
         this.state = {
             value: '',
-            elementList: [],
 
             radioFormat: 'Color',
             radioJSX: '',
@@ -28,8 +25,10 @@ export default class CodeFormatter extends Component {
 
             formatedString: '',
             isReadOnly: false,
-            activeTab: 'Start'
+            activeTab: 'Start',
 
+            textAreaCode: '',
+            codePreviewValue: ''
         };
     }
 
@@ -50,18 +49,17 @@ export default class CodeFormatter extends Component {
         this.displayCodeString = ""
         this.setState(() => {
             return {
-                isReadOnly: true,
+                isReadOnly: false,
                 value: '',
                 activeTab: 'Start'
-
             }
         })
-
     }
 
     findAndReplace = () => {
         const lessThan = "&#60;";
         const slash = "&#47;";
+        const UlTag = `<ul style="list-style-type:none">`;
         let formatedStrings = [];
         let selectedString = "";
         let rowStartWith = "";
@@ -71,6 +69,7 @@ export default class CodeFormatter extends Component {
         const numberOfLinesToFormat = arrayOfStrings.length;
 
         if (this.state.value) {
+            // make read only for security
             this.setState(() => {
                 return {
                     isReadOnly: true,
@@ -108,18 +107,24 @@ export default class CodeFormatter extends Component {
                     case selectedString.startsWith(lessThan) && !selectedString.endsWith("/>") && selectedString.endsWith(">"):
                         // <tag>
                         rowStartWith = "\n<li>";
-                        rowEndWith = "\n<ul>";
+                        rowEndWith = "\n" + UlTag;
                         break;
                     case selectedString.startsWith(lessThan) && !selectedString.endsWith("/>") && !selectedString.endsWith(">") && selectedString.split(" ").length === 1:
                         // <tag
                         rowStartWith = "\n<li>";
-                        rowEndWith = "\n<ul>";
+                        rowEndWith = "\n" + UlTag;
                         break;
                     case selectedString.startsWith(slash + ">") && selectedString.endsWith(slash + ">"):
-                        // />
+                        //   /> 
                         rowStartWith = "</ul>\n";
                         rowEndWith = "</li>";
                         break;
+                    case selectedString.startsWith(">") && selectedString.endsWith(">"):
+                        //   >
+                        rowStartWith = "</ul>\n";
+                        rowEndWith = "</li>\n" + UlTag;
+                        break;
+
                     case selectedString.startsWith(slash + slash):
                         // 
                         rowStartWith = "\n<li>";
@@ -128,7 +133,7 @@ export default class CodeFormatter extends Component {
                     case selectedString.endsWith("{") || selectedString.endsWith("("):
                         // text {  or  text (
                         rowStartWith = "\n<li>";
-                        rowEndWith = "\n<ul>";
+                        rowEndWith = "\n" + UlTag;
                         break;
                     default:
                         // li
@@ -147,75 +152,101 @@ export default class CodeFormatter extends Component {
             }
 
             let joinString = formatedStrings.join(' ');
-            const finalFormatedString = `<ul className="list-style-none">${joinString}\n</ul>`
 
-            this.setupDisplay(finalFormatedString);
+            // To do: fix style for JSX
+            // calculate string length difference between display and textarea value
+            // then calculate insert location.
+            // or replace all possible combinations
+            // const JsxStyle = `<ul style={{listStyleType:'none'}}>${joinString}\n</ul>`;
 
-            this.setState(() => { return { value: finalFormatedString }; });
+            const formatedStringTextArea = `<ul style="list-style-type:none">${joinString}\n</ul>`;
+            const formatedStringDisplay = `<ul style="list-style-type:none">${joinString}\n</ul>`
+
+            this.setupDisplay(formatedStringDisplay);
+
+            this.setState(() => { return { value: formatedStringTextArea }; });
         }
     }
 
-    setupDisplay = (finalFormatedString) => {
-        this.displayCodeString = finalFormatedString;
+    setupDisplay = (stringValue) => {
+        this.setState({ codePreviewValue: stringValue });
     }
 
     handleAddColor = (event, color) => {
-        event.preventDefault();
-        let selectionReplacement = "";
-        // console.log(event.target)
-        // console.dir(event.target);
+        // To do: fix style for JSX
+        // calculate string length difference between display and textarea value
+        // then calculate insert location.
+        // or replace all possible combinations
+        // const JsxStyle = `<ul style={{listStyleType:'none'}}>${joinString}\n</ul>`;
 
+        event.preventDefault();
+        let textAreaReplacement = "";
+        // let codePreviewReplacement = "";
+        let classNameStyle = 'class';
         const txtArea = document.getElementById("codeTextarea");
         const selectedTextStartIndex = txtArea.selectionStart;
         const selectedTextEndIndex = txtArea.selectionEnd;
         const selectedText = txtArea.value.substring(selectedTextStartIndex, selectedTextEndIndex);
-
-        switch (this.state.radioFormat) {
-            case 'Color':
-                selectionReplacement = `<span style="color:${color}; font-weight: bold"> ${selectedText}</span>`;
-                break;
-            case 'Border':
-                selectionReplacement = `<span style="border: solid ${color}; padding: 0 2px; font-weight: bold"> ${selectedText}</span>`;
-                break;
-
-            default:
-                break;
+        if (this.state.radioJSX === 'JSX') {
+            classNameStyle = 'className';
         }
-
-
-        // const selectionReplacement = `<span style="background:${color}"> ${selectedText}</span>`;
+        if (this.state.radioStyle === 'Style') {
+            switch (this.state.radioFormat) {
+                case 'Color':
+                    textAreaReplacement = `<span style="color:${color}; font-weight: bold"> ${selectedText}</span>`;
+                    // codePreviewReplacement = `<span style="color:${color}; font-weight: bold"> ${selectedText}</span>`;
+                    break;
+                case 'Border':
+                    textAreaReplacement = `<span style="border: solid ${color}; padding: 0 1px"> ${selectedText}</span>`;
+                    // codePreviewReplacement = `<span style="border: solid ${color}; padding: 0 1px"> ${selectedText}</span>`;
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            switch (this.state.radioFormat) {
+                case 'Color':
+                    textAreaReplacement = `<span ${classNameStyle}="c-${color} f-bold"> ${selectedText}</span>`;
+                    // codePreviewReplacement = `<span class="c-${color} f-bold"> ${selectedText}</span>`;
+                    break;
+                case 'Border':
+                    textAreaReplacement = `<span ${classNameStyle}="bd-color c-${color}"> ${selectedText}</span>`;
+                    // codePreviewReplacement = `<span class="bd-color c-${color}"> ${selectedText}</span>`;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         const beforeSelectedText = txtArea.value.substring(0, selectedTextStartIndex);;
         const afterSelectedText = txtArea.value.substring(selectedTextEndIndex);;
 
-        // var selectedText = textarea.value.slice(start, end);
-        // var before = textarea.value.slice(0, start);
-        // var after = textarea.value.slice(end);
+        const textAreaValue = beforeSelectedText + textAreaReplacement + afterSelectedText;
+        let codePreviewValue = "";
 
-        const newText = beforeSelectedText + selectionReplacement + afterSelectedText;
-        // textarea.value = text;
+        if (this.state.radioJSX === 'JSX') {
+            codePreviewValue = textAreaValue.replace(/<span className=/g, "<span class=");
+        } else {
+            codePreviewValue = textAreaValue;
+        }
 
-        // const newText = this.displayCodeString.replace(selectedText, selectionReplacement);
-
-        document.getElementById("codeTextarea").value = newText;
-        // console.log(newText)
-        this.displayCodeString = newText;
-        // this.setupDisplay(newText);
-        this.setState({ value: newText });
-
-
+        this.setState(() => {
+            return {
+                value: textAreaValue,
+                codePreviewValue: codePreviewValue
+            }
+        });
     }
+
     handleRadioChange = (changeEvent) => {
-        // console.log(changeEvent.target.name, ' ', changeEvent.target.value)
         let targetValue = changeEvent.target.value;
         if (targetValue === 'JSX' && this.state.radioJSX === 'JSX') {
             targetValue = '';
         }
-        console.log(targetValue);
         const stateObject = { [changeEvent.target.name]: targetValue }
-        // console.log(stateObject)
         this.setState(stateObject);
     }
+
     render() {
         return (
             <div className="flexContainer flex-warp">
@@ -233,7 +264,6 @@ export default class CodeFormatter extends Component {
                         radioFormat={this.state.radioFormat}
                         radioJSX={this.state.radioJSX}
                         radioStyle={this.state.radioStyle}
-
                     />
                     <div className="formatter margin-top-sm" >
                         <textarea
@@ -246,7 +276,7 @@ export default class CodeFormatter extends Component {
                         <br />
                     </div>
                 </div>
-                <DisplayFormattedCode displayCodeString={this.displayCodeString} />
+                <DisplayFormattedCode displayCodeString={this.state.codePreviewValue} />
             </div>
         );
     }

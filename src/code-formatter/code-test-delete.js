@@ -10,6 +10,12 @@ const testCode = () => {
     }
     return (
         <div>
+            <p
+                color="blue"
+                bg="black"
+            >
+                test
+            </p>
             Test
         </div>
     );

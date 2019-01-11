@@ -21,6 +21,7 @@ const RadioStart = ({ radioJSX, radioStyle, handleRadioChange }) => {
                 onChange={handleRadioChange}
                 radioName="radioJSX"
             />
+            <span>(class only)</span>
         </div>
     );
 }
