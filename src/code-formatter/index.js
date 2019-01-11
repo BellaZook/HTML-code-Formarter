@@ -85,11 +85,6 @@ export default class CodeFormatter extends Component {
                 selectedString = replaceSlashes.replace(/</g, lessThan);
 
                 switch (true) {
-                    case selectedString.startsWith(slash + slash):
-                        // 
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "</li>";
-                        break;
                     case selectedString.startsWith("}") || selectedString.startsWith(")"):
                         // } , )
                         rowStartWith = "</ul>\n";
@@ -97,7 +92,6 @@ export default class CodeFormatter extends Component {
                         break;
                     case selectedString.startsWith(lessThan + slash) && selectedString.endsWith(">") && (selectedString.split(lessThan).length - 1) < 2:
                         // </ tag >
-                        console.log("less than 2")
                         rowStartWith = "</ul>\n";
                         rowEndWith = "</li>";
                         break;
@@ -124,6 +118,11 @@ export default class CodeFormatter extends Component {
                     case selectedString.startsWith(slash + ">") && selectedString.endsWith(slash + ">"):
                         // />
                         rowStartWith = "</ul>\n";
+                        rowEndWith = "</li>";
+                        break;
+                    case selectedString.startsWith(slash + slash):
+                        // 
+                        rowStartWith = "\n<li>";
                         rowEndWith = "</li>";
                         break;
                     case selectedString.endsWith("{") || selectedString.endsWith("("):
