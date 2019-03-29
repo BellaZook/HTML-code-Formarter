@@ -1,26 +1,46 @@
-.bg-blue {
-    background-color: blue;
-}
-
-.c-white {
+.code {
+    background-color: #011627;
     color: white;
+    padding: 20px 10px;
+    margin: 5px 0;
+    border-radius: 20px;
+    font-family: Consolas, Monaco, Menlo, Consolas, monospace;
 }
 
-.c-blue {
-    color: blue
+.c-82aaff {
+    color: #82aaff;
 }
 
-.c-red {
-    color: red;
+.bg-82aaff {
+    background-color: #82aaff;
 }
 
-.c-green {
-    color: green;
+.c-ffa7c4 {
+    color: #ffa7c4;
 }
 
-.c-black {
-    color: black;
+.bg-ffa7c4 {
+    background-color: #ffa7c4;
 }
+
+.c-809393 {
+    color: #809393;
+}
+
+.bg-809393 {
+    background-color: #809393;
+}
+
+.c-ffcb8b {
+    color: #ffcb8b;
+}
+
+.bg-ffcb8b {
+    background-color: #ffcb8b;
+}
+
+/* old */
+
 
 .f-bold {
     font-weight: bold;

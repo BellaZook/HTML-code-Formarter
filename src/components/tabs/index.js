@@ -16,7 +16,7 @@ const Tabs = ({
 
     return (
         <React.Fragment>
-            <div className="tab">
+            <div className="tab tab-border">
                 <TabButton
                     handleSetActiveTab={handleSetActiveTab}
                     activeTab={activeTab}
@@ -37,6 +37,13 @@ const Tabs = ({
                     activeTab={activeTab}
                     tabName='Instructions'
                 />
+                <button
+                    className="bg-pink"
+                    onClick={handleReset}
+                >
+                    Reset
+                </button>
+
             </div>
             <Start
                 activeTab={activeTab}

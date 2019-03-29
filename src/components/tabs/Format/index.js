@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from '../Button';
 import RadioButtons from '../../radio';
+import MapColorButtons from './MapColorButtons';
 
 const Format = ({ radioFormat, handleRadioChange, handleAddColor, activeTab }) => {
     return (
@@ -12,10 +12,7 @@ const Format = ({ radioFormat, handleRadioChange, handleAddColor, activeTab }) =
                     handleRadioChange={handleRadioChange}
                 />
                 <div className="flexContainer flex-horizontal flex-warp">
-                    <Button name="Red" color="color-red" onClick={(e) => handleAddColor(e, "red")} />
-                    <Button name="Blue" color="color-blue" onClick={(e) => handleAddColor(e, "blue")} />
-                    <Button name="Black" color="color-black" onClick={(e) => handleAddColor(e, "black")} />
-                    <Button name="Green" color="color-green" onClick={(e) => handleAddColor(e, "green")} />
+                    <MapColorButtons handleAddColor={handleAddColor} />
                 </div>
             </div>
 

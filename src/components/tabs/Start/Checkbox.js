@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Checkbox = ({ title, selectedRadio, onChange, radioName }) => {
+const Checkbox = ({ title, onChange, radioName }) => {
     return (
         <label className="radio">{title}
             <input

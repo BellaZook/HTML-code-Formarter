@@ -4,7 +4,7 @@ const Button = ({ name, className, color, onClick }) => {
     return (
         <button
             type="button"
-            className={`btn ${className} ${color}`}
+            className={`${className} ${color} btn`}
             onClick={onClick}
         >
             {name}

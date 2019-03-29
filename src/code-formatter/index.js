@@ -5,6 +5,9 @@ import './styles/styling.css'
 import splitStringIntoArrayOfStrings from "./helpers/splitStringIntoArrayOfStrings";
 import addListTagToStartAndEndOfString from "./helpers/addListTagToStartAndEndOfString";
 import Tabs from "../components/tabs";
+import { HTML_LESS_THAN, HTML_SLASH, UL_TAG_JSX, UL_TAG } from "./helpers/constants";
+import setRowStartEndTags from "./helpers/setRowStatEndTags";
+import getReplacementText from "./helpers/getReplacementText";
 
 export default class CodeFormatter extends Component {
     constructor(props) {
@@ -14,11 +17,9 @@ export default class CodeFormatter extends Component {
         this.findAndReplace = this.findAndReplace.bind(this);
         this.handleAddColor = this.handleAddColor.bind(this);
         this.handleRadioChange = this.handleRadioChange.bind(this);
-        this.displayCodeString = "";
 
         this.state = {
             value: '',
-
             radioFormat: 'Color',
             radioJSX: '',
             radioStyle: 'Style',
@@ -28,7 +29,7 @@ export default class CodeFormatter extends Component {
             activeTab: 'Start',
 
             textAreaCode: '',
-            codePreviewValue: ''
+            codePreview: '',
         };
     }
 
@@ -45,25 +46,22 @@ export default class CodeFormatter extends Component {
     handleSubmit() {
         this.findAndReplace();
     }
+
     handleReset = () => {
-        this.displayCodeString = ""
         this.setState(() => {
             return {
                 isReadOnly: false,
                 value: '',
-                activeTab: 'Start'
+                activeTab: 'Start',
+                codePreview: ""
             }
         })
     }
 
     findAndReplace = () => {
-        const lessThan = "&#60;";
-        const slash = "&#47;";
-        const UlTag = `<ul style="list-style-type:none">`;
         let formatedStrings = [];
         let selectedString = "";
-        let rowStartWith = "";
-        let rowEndWith = ""
+        let UlTag = "";
         const stringToBeModified = this.state.value;
         const arrayOfStrings = splitStringIntoArrayOfStrings(stringToBeModified);
         const numberOfLinesToFormat = arrayOfStrings.length;
@@ -77,72 +75,20 @@ export default class CodeFormatter extends Component {
                 }
             })
 
+            if (this.state.radioJSX === 'JSX') {
+                UlTag = UL_TAG_JSX;
+            } else {
+                UlTag = UL_TAG;
+            }
+
             for (let index = 0; index < numberOfLinesToFormat; index++) {
 
                 selectedString = arrayOfStrings[index].trim();
-                const replaceSlashes = selectedString.replace(/\//g, slash);
-                selectedString = replaceSlashes.replace(/</g, lessThan);
+                const replaceSlashes = selectedString.replace(/\//g, HTML_SLASH);
+                selectedString = replaceSlashes.replace(/</g, HTML_LESS_THAN);
 
-                switch (true) {
-                    case selectedString.startsWith("}") || selectedString.startsWith(")"):
-                        // } , )
-                        rowStartWith = "</ul>\n";
-                        rowEndWith = "</li>";
-                        break;
-                    case selectedString.startsWith(lessThan + slash) && selectedString.endsWith(">") && (selectedString.split(lessThan).length - 1) < 2:
-                        // </ tag >
-                        rowStartWith = "</ul>\n";
-                        rowEndWith = "</li>";
-                        break;
-                    case selectedString.startsWith(lessThan) && selectedString.endsWith(">") && (selectedString.split(lessThan).length - 1) > 1:
-                        // <tag> text </tag>
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "</li>";
-                        break;
-                    case selectedString.startsWith(lessThan) && selectedString.endsWith(slash + ">") && (selectedString.split(lessThan).length - 1) < 2:
-                        // <tag/>
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "</li>";
-                        break;
-                    case selectedString.startsWith(lessThan) && !selectedString.endsWith("/>") && selectedString.endsWith(">"):
-                        // <tag>
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "\n" + UlTag;
-                        break;
-                    case selectedString.startsWith(lessThan) && !selectedString.endsWith("/>") && !selectedString.endsWith(">") && selectedString.split(" ").length === 1:
-                        // <tag
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "\n" + UlTag;
-                        break;
-                    case selectedString.startsWith(slash + ">") && selectedString.endsWith(slash + ">"):
-                        //   /> 
-                        rowStartWith = "</ul>\n";
-                        rowEndWith = "</li>";
-                        break;
-                    case selectedString.startsWith(">") && selectedString.endsWith(">"):
-                        //   >
-                        rowStartWith = "</ul>\n";
-                        rowEndWith = "</li>\n" + UlTag;
-                        break;
-
-                    case selectedString.startsWith(slash + slash):
-                        // 
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "</li>";
-                        break;
-                    case selectedString.endsWith("{") || selectedString.endsWith("("):
-                        // text {  or  text (
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "\n" + UlTag;
-                        break;
-                    default:
-                        // li
-                        rowStartWith = "\n<li>";
-                        rowEndWith = "</li>";
-                        break;
-                }
-
-                let modString = addListTagToStartAndEndOfString(selectedString, rowStartWith, rowEndWith)
+                const rowStartEndTags = setRowStartEndTags(selectedString, UlTag);
+                let modString = addListTagToStartAndEndOfString(selectedString, rowStartEndTags.rowStartWith, rowStartEndTags.rowEndWith)
                 selectedString = modString;
 
                 modString = selectedString.replace("{", "&#123;");
@@ -153,13 +99,7 @@ export default class CodeFormatter extends Component {
 
             let joinString = formatedStrings.join(' ');
 
-            // To do: fix style for JSX
-            // calculate string length difference between display and textarea value
-            // then calculate insert location.
-            // or replace all possible combinations
-            // const JsxStyle = `<ul style={{listStyleType:'none'}}>${joinString}\n</ul>`;
-
-            const formatedStringTextArea = `<ul style="list-style-type:none">${joinString}\n</ul>`;
+            const formatedStringTextArea = `${UlTag}${joinString}\n</ul>`;
             const formatedStringDisplay = `<ul style="list-style-type:none">${joinString}\n</ul>`
 
             this.setupDisplay(formatedStringDisplay);
@@ -169,54 +109,18 @@ export default class CodeFormatter extends Component {
     }
 
     setupDisplay = (stringValue) => {
-        this.setState({ codePreviewValue: stringValue });
+        this.setState({ codePreview: stringValue });
     }
 
     handleAddColor = (event, color) => {
-        // To do: fix style for JSX
-        // calculate string length difference between display and textarea value
-        // then calculate insert location.
-        // or replace all possible combinations
-        // const JsxStyle = `<ul style={{listStyleType:'none'}}>${joinString}\n</ul>`;
-
         event.preventDefault();
-        let textAreaReplacement = "";
-        // let codePreviewReplacement = "";
-        let classNameStyle = 'class';
+        const { radioStyle, radioFormat, radioJSX } = this.state
         const txtArea = document.getElementById("codeTextarea");
         const selectedTextStartIndex = txtArea.selectionStart;
         const selectedTextEndIndex = txtArea.selectionEnd;
         const selectedText = txtArea.value.substring(selectedTextStartIndex, selectedTextEndIndex);
-        if (this.state.radioJSX === 'JSX') {
-            classNameStyle = 'className';
-        }
-        if (this.state.radioStyle === 'Style') {
-            switch (this.state.radioFormat) {
-                case 'Color':
-                    textAreaReplacement = `<span style="color:${color}; font-weight: bold"> ${selectedText}</span>`;
-                    // codePreviewReplacement = `<span style="color:${color}; font-weight: bold"> ${selectedText}</span>`;
-                    break;
-                case 'Border':
-                    textAreaReplacement = `<span style="border: solid ${color}; padding: 0 1px"> ${selectedText}</span>`;
-                    // codePreviewReplacement = `<span style="border: solid ${color}; padding: 0 1px"> ${selectedText}</span>`;
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            switch (this.state.radioFormat) {
-                case 'Color':
-                    textAreaReplacement = `<span ${classNameStyle}="c-${color} f-bold"> ${selectedText}</span>`;
-                    // codePreviewReplacement = `<span class="c-${color} f-bold"> ${selectedText}</span>`;
-                    break;
-                case 'Border':
-                    textAreaReplacement = `<span ${classNameStyle}="bd-color c-${color}"> ${selectedText}</span>`;
-                    // codePreviewReplacement = `<span class="bd-color c-${color}"> ${selectedText}</span>`;
-                    break;
-                default:
-                    break;
-            }
-        }
+
+        const textAreaReplacement = getReplacementText(radioStyle, radioFormat, radioJSX, selectedText, color);
 
         const beforeSelectedText = txtArea.value.substring(0, selectedTextStartIndex);;
         const afterSelectedText = txtArea.value.substring(selectedTextEndIndex);;
@@ -233,7 +137,7 @@ export default class CodeFormatter extends Component {
         this.setState(() => {
             return {
                 value: textAreaValue,
-                codePreviewValue: codePreviewValue
+                codePreview: codePreviewValue
             }
         });
     }
@@ -243,6 +147,10 @@ export default class CodeFormatter extends Component {
         if (targetValue === 'JSX' && this.state.radioJSX === 'JSX') {
             targetValue = '';
         }
+        if (targetValue === 'JSX' && this.state.radioJSX !== 'JSX') {
+            this.setState({ radioStyle: "Class" })
+        }
+
         const stateObject = { [changeEvent.target.name]: targetValue }
         this.setState(stateObject);
     }
@@ -269,29 +177,17 @@ export default class CodeFormatter extends Component {
                         <textarea
                             readOnly={this.state.isReadOnly}
                             name="text" id="codeTextarea"
-                            className="texArea-height" placeholder="Paste your code inside"
+                            className="texArea-height"
+                            placeholder="Paste your code inside"
                             style={{ width: "100%" }} value={this.state.value}
                             onChange={this.handleChange}
                         />
                         <br />
                     </div>
                 </div>
-                <DisplayFormattedCode displayCodeString={this.state.codePreviewValue} />
+                <DisplayFormattedCode displayCodeString={this.state.codePreview} />
             </div>
         );
     }
 }
 
-
-
-// TO DO:
-// ADD SWITCH. (BREAK AND RETURN)
-// case selectedString.startsWith("case") && selectedString.endsWith(":"):
-// // text {  or  text (
-// rowStartWith = "\n<li>";
-// rowEndWith = "\n<ul>";
-// break;
-
-// for return create a hasCase variable = false,
-// change to true if has case,
-// change to false after break or return.
