@@ -10,7 +10,7 @@ function Start({
 
     return (
         <div id="start" className="tabContent" style={{ display: activeTab === 'Start' ? "block" : "none" }}>
-            <p style={{ margin: 0 }}>Select some text, then click to change the text color</p>
+            <p style={{ margin: 0 }}>Paste your code, then click on the convert button.</p>
             <div className="flexContainer flex-vertical flex-warp">
                 <RadioStart
                     radioJSX={radioJSX}
